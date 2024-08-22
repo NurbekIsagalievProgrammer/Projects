@@ -1,0 +1,15 @@
+{
+    "apps": [
+        {
+            "name": "nurbektest",
+            "script": "artisan",
+            "args": ["serve", "--port=9024"],
+            "cwd": "/opt/nurbek/Transaction",
+            "exec_interpreter": "php",
+            "interpreter": "none",
+            "autorestart": true,
+            "watch": false,
+            "max_memory_restart": "1G"
+        }
+    ]
+}

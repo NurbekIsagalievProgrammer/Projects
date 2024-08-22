@@ -1,0 +1,60 @@
+version: "3"
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: nginx/Dockerfile
+    ports: 
+      - "8080:80"
+    networks:
+      - internal
+    volumes:
+      - ./transaction-history/:/var/www/html/
+      - ./logs/nginx:/var/log/nginx/
+    container_name: nginx
+
+  php:
+    build:
+      context: .
+      dockerfile: php/Dockerfile
+    networks:
+      - internal
+    volumes:
+      - ./transaction-history/:/var/www/html/
+      - ./logs/php.log:/var/log/fpm-php.www.log
+    container_name: php
+    expose:
+      - "9000"
+
+  mysql:
+    container_name: db
+    restart: always
+    image: mysql:latest
+    platform: linux/x86_64
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 1
+      MYSQL_DATABASE: transaction
+      MYSQL_PASSWORD: 1
+    volumes:
+      - ./db-data:/var/lib/mysql
+    networks:
+      - internal
+
+  vite:
+    image: node:18
+    working_dir: /app
+    volumes:
+      - ./transaction-history:/app
+    ports:
+      - "5173:5173"
+    command: npm run dev
+    depends_on:
+      - php
+    networks:
+      - internal
+
+networks:
+  internal:
+    driver: bridge
